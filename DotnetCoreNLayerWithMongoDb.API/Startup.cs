@@ -9,6 +9,11 @@ using DotnetCoreNLayer.Data;
 using DotnetCoreNLayer.Data.Repositories;
 using DotnetCoreNLayer.Data.UnitOfWorks;
 using DotnetCoreNLayer.Service.Services;
+using DotnetCoreNLayerWithMongoDb.API.Settings;
+using DotnetCoreNLayerWithMongoDb.Core.MongoDb.Settings;
+using DotnetCoreNLayerWithMongoDb.Core.Repositories;
+using DotnetCoreNLayerWithMongoDb.Core.Services;
+using DotnetCoreNLayerWithMongoDb.Data.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
@@ -20,7 +25,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
+using NetCoreBestPractices.Service.Services;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -46,7 +53,7 @@ namespace DotnetCoreNLayer.API
             
             services.AddDbContext<AppDbContext>(options =>
             {
-                options.UseSqlServer(Configuration["ConnectionStrings:DevelopmentConnection"].ToString(),
+                options.UseSqlServer(Configuration.GetConnectionString("DevelopmentConnection"),
                     o => {
                         o.MigrationsAssembly("DotnetCoreNLayer.Data");
                     });
@@ -54,11 +61,17 @@ namespace DotnetCoreNLayer.API
 
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddScoped(typeof(IService<>), typeof(Service<>));
+            services.AddScoped(typeof(IMongoService<>), typeof(MongoService<>));
+            services.AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>));
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped<ICategoryService, CategoryService>();
             services.AddScoped<IProductService, ProductService>();
             services.AddScoped<ProductNotFoundFilter>();
             services.AddScoped<CategoryNotFoundFilter>();
+
+            // requires using Microsoft.Extensions.Options
+            services.Configure<MongoDbSettings>(Configuration.GetSection("MongoDbSettings"));
+            services.AddSingleton<IMongoDbSettings>(sp =>sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
 
             services.AddControllers();
             // Validation filters can be used globally with the code below

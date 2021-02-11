@@ -3,6 +3,8 @@ using DotnetCoreNLayer.API.DTO.Category;
 using DotnetCoreNLayer.API.DTO.Person;
 using DotnetCoreNLayer.API.DTO.Product;
 using DotnetCoreNLayer.Core.Models;
+using DotnetCoreNLayerWithMongoDb.API.DTO.Book;
+using DotnetCoreNLayerWithMongoDb.Core.MongoDb.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -33,6 +35,10 @@ namespace DotnetCoreNLayer.API.Mapping
             //Person Entity
             CreateMap<Person, PersonDto>();
             CreateMap<PersonDto, Person>();
+
+            //Book Entity
+            CreateMap<BookDto, Book>();
+            CreateMap<Book, BookDto>();
         }
     }
 }
